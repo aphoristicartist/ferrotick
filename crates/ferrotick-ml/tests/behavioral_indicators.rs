@@ -48,8 +48,8 @@ fn test_rsi_oversold_for_continuous_decline() {
         last_rsi
     );
     assert!(
-        last_rsi > 0.0,
-        "RSI should be positive, but was {:.2}",
+        last_rsi >= 0.0,
+        "RSI should be non-negative, but was {:.2}",
         last_rsi
     );
 }
@@ -74,8 +74,8 @@ fn test_rsi_overbought_for_continuous_rise() {
         last_rsi
     );
     assert!(
-        last_rsi < 100.0,
-        "RSI should be < 100, but was {:.2}",
+        last_rsi <= 100.0,
+        "RSI should be <= 100, but was {:.2}",
         last_rsi
     );
 }
@@ -202,4 +202,30 @@ fn test_rsi_bounded_between_0_and_100() {
             );
         }
     }
+}
+
+#[test]
+fn test_rsi_matches_wilder_reference() {
+    // Wilder's 14-period RSI worked example (StockCharts), unrounded: 70.46, then 66.25.
+    let closes = [
+        44.34, 44.09, 44.15, 43.61, 44.33, 44.83, 45.10, 45.42, 45.84, 46.08, 45.89, 46.03, 45.61,
+        46.28, 46.28, 46.00,
+    ];
+
+    let rsi_values = compute_rsi(&closes, 14).expect("RSI computation should succeed");
+
+    assert!(
+        rsi_values[13].is_none(),
+        "RSI needs 14 changes, not 14 closes"
+    );
+    assert!(
+        (rsi_values[14].unwrap() - 70.46).abs() < 0.01,
+        "{:?}",
+        rsi_values[14]
+    );
+    assert!(
+        (rsi_values[15].unwrap() - 66.25).abs() < 0.01,
+        "{:?}",
+        rsi_values[15]
+    );
 }

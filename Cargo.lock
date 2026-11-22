@@ -1536,6 +1536,7 @@ dependencies = [
  "duckdb",
  "ferrotick-core",
  "ferrotick-warehouse",
+ "fin-primitives",
  "linfa",
  "linfa-svm",
  "linfa-trees",
@@ -1645,6 +1646,18 @@ dependencies = [
  "cfg-if",
  "libc",
  "libredox",
+]
+
+[[package]]
+name = "fin-primitives"
+version = "4.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ea881ed57c18c5e839ac4ea0b0d91b3f9e499412e5957e4608ac9efa62c716b"
+dependencies = [
+ "chrono",
+ "libm",
+ "rust_decimal",
+ "thiserror 2.0.17",
 ]
 
 [[package]]

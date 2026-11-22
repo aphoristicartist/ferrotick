@@ -125,7 +125,7 @@ fn computes_required_phase7_features() {
     assert_optional_feature_behavior(
         &rows,
         "rsi",
-        67,
+        66,
         |row| row.rsi,
         |value| (0.0..=100.0).contains(&value),
         "within [0, 100]",
@@ -149,7 +149,7 @@ fn computes_required_phase7_features() {
     assert_optional_feature_behavior(
         &rows,
         "atr",
-        67,
+        66,
         |row| row.atr,
         |value| (0.0..=10.0).contains(&value),
         "within [0, 10]",
