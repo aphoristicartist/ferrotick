@@ -7,6 +7,7 @@ edition = "2021"
 ferrotick-core = { path = "../ferrotick-core" }
 ferrotick-warehouse = { path = "../ferrotick-warehouse" }
 ta = "0.5"
+fin-primitives = { version = "4.0.1", default-features = false, features = ["indicators"] }
 ndarray = { version = "0.15", features = ["rayon"] }
 polars = { version = "0.41", features = ["lazy", "parquet", "dtype-datetime"] }
 serde = { version = "1.0", features = ["derive"] }

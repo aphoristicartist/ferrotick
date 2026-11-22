@@ -1,8 +1,7 @@
 use ferrotick_core::Bar;
-use ta::indicators::{
-    AverageTrueRange, BollingerBands, MovingAverageConvergenceDivergence, RelativeStrengthIndex,
-};
-use ta::{DataItem, Next};
+use fin_primitives::signals::batch_f64::{self, AtrSeed};
+use ta::indicators::{BollingerBands, MovingAverageConvergenceDivergence};
+use ta::Next;
 
 use crate::{MlError, MlResult};
 
@@ -23,16 +22,10 @@ pub fn compute_rsi(closes: &[f64], period: usize) -> MlResult<Vec<Option<f64>>> 
         )));
     }
 
-    let mut indicator = RelativeStrengthIndex::new(period)
-        .map_err(|err| MlError::InvalidConfig(err.to_string()))?;
-
-    let mut output = Vec::with_capacity(closes.len());
-    for (index, close) in closes.iter().enumerate() {
-        let value = indicator.next(*close);
-        output.push((index + 1 >= period).then_some(value));
-    }
-
-    Ok(output)
+    Ok(batch_f64::rsi(closes, period)
+        .into_iter()
+        .map(|value| (!value.is_nan()).then_some(value))
+        .collect())
 }
 
 pub fn compute_macd(
@@ -97,22 +90,12 @@ pub fn compute_atr(bars: &[Bar], period: usize) -> MlResult<Vec<Option<f64>>> {
         )));
     }
 
-    let mut indicator =
-        AverageTrueRange::new(period).map_err(|err| MlError::InvalidConfig(err.to_string()))?;
+    let high: Vec<f64> = bars.iter().map(|bar| bar.high).collect();
+    let low: Vec<f64> = bars.iter().map(|bar| bar.low).collect();
+    let close: Vec<f64> = bars.iter().map(|bar| bar.close).collect();
 
-    let mut output = Vec::with_capacity(bars.len());
-    for (index, bar) in bars.iter().enumerate() {
-        let item = DataItem::builder()
-            .high(bar.high)
-            .low(bar.low)
-            .close(bar.close)
-            .open(bar.open)
-            .volume(bar.volume.unwrap_or(0) as f64)
-            .build()
-            .map_err(|err| MlError::Compute(err.to_string()))?;
-        let value = indicator.next(&item);
-        output.push((index + 1 >= period).then_some(value));
-    }
-
-    Ok(output)
+    Ok(batch_f64::atr(&high, &low, &close, period, AtrSeed::TaLib)
+        .into_iter()
+        .map(|value| (!value.is_nan()).then_some(value))
+        .collect())
 }
